@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INDOVP</title>
+<style>
+:root{
+--bg-light:#f0f0f0;--bg-dark:#121212;--text-light:#222;--text-dark:#eee;
+--primary-color:#2a6cf4;--primary-hover:#1d4bd1;
+--win-color:#00ff00;--loss-color:#ff4444;
+}
+body{font-family:Arial,sans-serif;margin:0;transition:all 0.4s;color:var(--text-light);background-color:var(--bg-light);}
+body.dark{background-color:var(--bg-dark);color:var(--text-dark);}
+.tab-container{display:flex;justify-content:center;gap:20px;position:relative;z-index:2;transition:all 0.4s;}
+.tab-button{padding:10px 20px;border:none;border-radius:10px 10px 0 0;cursor:pointer;transition:all 0.3s;color:var(--text-light);background:white;box-shadow:0 0 5px rgba(0,0,0,0.2);}
+.tab-button:hover,.tab-button.active{background:#e0e0e0;box-shadow:0 0 10px rgba(0,0,0,0.4);}
+body.dark .tab-button{background:var(--primary-color);color:white;box-shadow:0 0 10px rgba(42,108,244,0.7);}
+body.dark .tab-button:hover,.tab-button.active{background:var(--primary-hover);box-shadow:0 0 15px rgba(42,108,244,0.9);}
+.content{max-width:800px;margin:auto;background:white;padding:30px;border-radius:0 0 12px 12px;min-height:300px;position:relative;overflow:hidden;transition:all 0.4s;}
+body.dark .content{background:#222;box-shadow:0 0 30px rgba(255,255,255,0.1);}
+.tab-content{opacity:0;max-height:0;overflow:hidden;transition:opacity 0.4s ease,max-height 0.4s ease;pointer-events:none;position:absolute;top:0;left:0;right:0;bottom:0;padding:30px;box-sizing:border-box;}
+.tab-content.active{opacity:1;max-height:2000px;pointer-events:auto;position:relative;}
+img{width:100px;border-radius:50%;display:block;margin-bottom:15px;}
+a{text-decoration:none;color:var(--primary-color);}
+a:hover{color:var(--primary-hover);}
+#darkModeToggle{position:fixed;top:15px;right:15px;background:var(--primary-color);border:none;color:white;padding:10px 15px;border-radius:25px;cursor:pointer;z-index:10;transition:all 0.3s;}
+#darkModeToggle:hover{background:var(--primary-hover);}
+ul.friends-list{list-style:none;padding-left:0;}
+ul.friends-list li{padding:5px 0;font-weight:600;cursor:pointer;}
+canvas{border:2px solid #444;margin-top:10px;}
+select{padding:8px;border-radius:8px;margin-bottom:10px;cursor:pointer;}
+button{padding:5px 10px;margin:3px;border-radius:5px;cursor:pointer;transition:all 0.2s;}
+button:hover{box-shadow:0 0 10px var(--primary-color);}
+.win{color:var(--win-color);font-weight:bold;}
+.loss{color:var(--loss-color);font-weight:bold;}
+</style>
+</head>
+<body>
+<button id="darkModeToggle">Switch to Dark Mode</button>
+
+<div class="tab-container">
+<button class="tab-button active" onclick="openTab('about')">🧍 About Me</button>
+<button class="tab-button" onclick="openTab('games')">🎮 Mini-Games</button>
+<button class="tab-button" onclick="openTab('links')">🔗 Links</button>
+<button class="tab-button" onclick="openTab('friends')">👥 Friends</button>
+</div>
+
+<div class="content">
+
+<!-- About -->
+<div id="about" class="tab-content active">
+<h2>About Me</h2>
+<img src="profile.png" alt="INDOVP">
+<p>Hello! I'm INDOVP – welcome to my website! Here you'll find info about me, data, links, interesting facts, events, mini-games and much more! 😎</p>
+<p>I come from good old Germany/NRW and if I make videos at all, it's mostly about Roblox, Brawl Stars and a bit of Minecraft.</p>
+<p>Why are you reading this?</p>
+</div>
+
+<!-- Mini-Games -->
+<div id="games" class="tab-content">
+<h2>Mini-Games</h2>
+<select id="gameSelect" onchange="showGame(this.value)">
+<option value="">Select Game</option>
+<option value="ssp">🪨 Rock-Paper-Scissors</option>
+<option value="snake">🐍 Snake</option>
+<option value="reaction">⚡ Reaction Time</option>
+<option value="trivia">❓ Minecraft Trivia</option>
+</select>
+
+<!-- RPS -->
+<div id="ssp-game" style="display:none;">
+<h3>Rock-Paper-Scissors</h3>
+<button onclick="playSSP('Rock')">🪨 Rock</button>
+<button onclick="playSSP('Paper')">📄 Paper</button>
+<button onclick="playSSP('Scissors')">✌️ Scissors</button>
+<p id="ssp-result"></p>
+<p>Wins: <span id="sspWins">0</span> | Loss: <span id="sspLoss">0</span></p>
+<label><input type="checkbox" id="sspAI"> Pro AI Mode</label>
+</div>
+
+<!-- Snake -->
+<div id="snake-game" style="display:none;">
+<h3>Snake</h3>
+<canvas id="snakeCanvas" width="300" height="300"></canvas>
+<p>Score: <span id="snakeScore">0</span></p>
+<p>Wins: <span id="snakeWins">0</span> | Loss: <span id="snakeLoss">0</span></p>
+<p>Use WASD or Arrow Keys, R to reset</p>
+</div>
+
+<!-- Reaction -->
+<div id="reaction-game" style="display:none;">
+<h3>Reaction Time</h3>
+<button onclick="startReactionGame()">Start</button>
+<p id="reactionResult"></p>
+<p>Wins: <span id="reactionWins">0</span> | Loss: <span id="reactionLoss">0</span></p>
+</div>
+
+<!-- Trivia -->
+<div id="trivia-game" style="display:none;">
+<h3>Minecraft Trivia</h3>
+<button onclick="startTrivia()">Start Trivia</button>
+<p id="triviaQuestion"></p>
+<input type="text" id="triviaAnswer" placeholder="Your answer">
+<button onclick="submitTrivia()">Submit</button>
+<p id="triviaResult"></p>
+<p>Wins: <span id="triviaWins">0</span> | Loss: <span id="triviaLoss">0</span></p>
+</div>
+</div>
+
+<!-- Links -->
+<div id="links" class="tab-content">
+<h2>Links</h2>
+<p>My YouTube channel:</p>
+<a href="https://www.youtube.com/@INDOVP" target="_blank">➡️ INDOVP on YouTube</a><br/><br/>
+<p>My Twitch channel:</p>
+<a href="https://www.twitch.tv/jo31erde" target="_blank">➡️ twitch.tv/jo31erde</a><br/><br/>
+<p>My Twitter:</p>
+<a href="https://twitter.com/INDOVP" target="_blank">➡️ @INDOVP</a><br/><br/>
+<p>Most popular video:</p>
+<iframe width="100%" height="315" src="https://www.youtube.com/shorts/DLPVNihS4XE" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<!-- Friends -->
+<div id="friends" class="tab-content">
+<h2>Friends</h2>
+<ul class="friends-list">
+<li id="friend-jenbi">Jenbi</li>
+<li>Fablo</li><li>Gustav</li><li>Maksim</li><li>Felix</li><li>Fabian</li>
+<li>Riza</li><li>Sico</li><li>Ismail</li><li>VKLuca</li><li>Jayden</li><li>Nico</li>
+<li>Daniel</li><li>Svend</li><li>Tahlia</li><li>Arik</li><li>Gehas</li><li>Tim</li><li>Johann</li>
+</ul>
+
+<!-- Hidden container for secret image -->
+<div id="secretImageContainer" style="display:none; text-align:center; margin-top:20px;">
+<img src="https://yt3.ggpht.com/UYoAHCZ8j399Y9PD9HIWYuTbNLxuiqXv0qCweG4XnL-i2pWoqd4rxEg_YJbiOiIVHtzTafXbdhM=s88-c-k-c0x00ffffff-no-rj" alt="Secret Jenbi" />
+</div>
+</div>
+
+<script>
+// Dark Mode
+const darkModeToggle=document.getElementById('darkModeToggle');
+darkModeToggle.addEventListener('click',()=>{
+document.body.classList.toggle('dark');
+darkModeToggle.textContent=document.body.classList.contains('dark')?'Switch to Light Mode':'Switch to Dark Mode';
+localStorage.setItem('darkMode',document.body.classList.contains('dark')?'enabled':'disabled');
+});
+window.addEventListener('load',()=>{
+if(localStorage.getItem('darkMode')==='enabled'){document.body.classList.add('dark');darkModeToggle.textContent='Switch to Light Mode';}
+});
+
+// Tabs
+function openTab(tab){document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));document.getElementById(tab).classList.add('active');event.target.classList.add('active');}
+
+// Dropdown
+function showGame(val){['ssp-game','snake-game','reaction-game','trivia-game'].forEach(id=>document.getElementById(id).style.display='none');if(val)document.getElementById(val+'-game').style.display='block';}
+
+// RPS
+let sspWins=0,sspLoss=0;
+function playSSP(choice){
+const opts=['Rock','Paper','Scissors'];
+let bot=opts[Math.floor(Math.random()*3)];
+if(document.getElementById('sspAI').checked){bot=opts[(opts.indexOf(choice)+Math.floor(Math.random()*3))%3];}
+let res='';
+if(choice===bot) res='Tie!';
+else if((choice==='Rock'&&bot==='Scissors')||(choice==='Paper'&&bot==='Rock')||(choice==='Scissors'&&bot==='Paper')){res='You Win!';sspWins++;}else{res='You Lose!';sspLoss++;}
+document.getElementById('ssp-result').textContent=`${choice} vs ${bot} → ${res}`;
+document.getElementById('sspWins').textContent=sspWins;
+document.getElementById('sspLoss').textContent=sspLoss;
+}
+
+// Snake
+const snakeCanvas=document.getElementById('snakeCanvas');const ctx=snakeCanvas.getContext('2d');const box=15;
+let snake=[{x:5*box,y:5*box}],dir='';let food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};
+let snakeScore=0,snakeWins=0,snakeLoss=0;
+function resetSnake(){snake=[{x:5*box,y:5*box}];dir='';food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};snakeScore=0;clearInterval(snakeInterval);snakeInterval=setInterval(drawSnake,100);}
+function drawSnake(){
+ctx.fillStyle='#000';ctx.fillRect(0,0,300,300);
+snake.forEach((s,i)=>{ctx.fillStyle=i===0?'lime':'white';ctx.fillRect(s.x,s.y,box,box);});
+ctx.fillStyle='red';ctx.fillRect(food.x,food.y,box,box);
+let head={x:snake[0].x,y:snake[0].y};
+if(dir==='LEFT') head.x-=box;if(dir==='RIGHT') head.x+=box;if(dir==='UP') head.y-=box;if(dir==='DOWN') head.y+=box;
+if(head.x===food.x&&head.y===food.y){snakeScore++;food={x:Math.floor(Math.random()*20)*box,y:Math.floor(Math.random()*20)*box};}else snake.pop();
+if(head.x<0||head.y<0||head.x>=300||head.y>=300||collision(head,snake)){snakeLoss++;clearInterval(snakeInterval);alert('Game Over');}
+snake.unshift(head);
+document.getElementById('snakeScore').textContent=snakeScore;
+document.getElementById('snakeWins').textContent=snakeWins;
+document.getElementById('snakeLoss').textContent=snakeLoss;
+}
+function collision(h,arr){for(let i=1;i<arr.length;i++)if(h.x===arr[i].x&&h.y===arr[i].y)return true;return false;}
+document.addEventListener('keydown',e=>{
+if(e.key==='ArrowLeft'||e.key==='a')dir='LEFT';
+if(e.key==='ArrowRight'||e.key==='d')dir='RIGHT';
+if(e.key==='ArrowUp'||e.key==='w')dir='UP';
+if(e.key==='ArrowDown'||e.key==='s')dir='DOWN';
+if(e.key==='r')resetSnake();
+});
+let snakeInterval=setInterval(drawSnake,100);
+
+// Reaction
+let reactionStart=false,reactionTimeout,reactionWins=0,reactionLoss=0;
+function startReactionGame(){reactionStart=false;document.getElementById('reactionResult').textContent='Wait for green...';clearTimeout(reactionTimeout);reactionTimeout=setTimeout(()=>{reactionStart=true;document.getElementById('reactionResult').textContent='CLICK NOW!';},Math.random()*3000+2000);}
+document.addEventListener('click',()=>{if(document.getElementById('reaction-game').style.display==='block'){if(reactionStart){reactionWins++;document.getElementById('reactionResult').textContent='Success!';reactionStart=false;}else{reactionLoss++;document.getElementById('reactionResult').textContent='Too early!';}document.getElementById('reactionWins').textContent=reactionWins;document.getElementById('reactionLoss').textContent=reactionLoss;}});
+
+// Trivia
+const triviaQs=[
+{q:'What do you need to craft a crafting table?',a:'4 planks'},
+{q:'What mob explodes?',a:'creeper'},
+{q:'What do Endermen drop?',a:'ender pearl'},
+{q:'Which ore drops diamonds?',a:'diamond ore'},
+{q:'What animal gives wool?',a:'sheep'},
+{q:'What do you need to tame a wolf?',a:'bone'},
+{q:'Which mob is passive?',a:'cow'},
+{q:'Which block can be used to make a beacon?',a:'nether star'},
+{q:'Which potion is red?',a:'health potion'},
+{q:'Which dimension has the Ender Dragon?',a:'end'},
+{q:'What do you need to craft a furnace?',a:'8 cobblestone'},
+{q:'Which tool mines obsidian?',a:'diamond pickaxe'},
+{q:'Which mob drops rotten flesh?',a:'zombie'},
+{q:'Which mob drops string?',a:'spider'},
+{q:'Which biome has snow?',a:'snow biome'},
+{q:'Which block can you use to make TNT?',a:'sandstone'},
+{q:'Which potion makes you invisible?',a:'invisibility potion'},
+{q:'Which item lights portals?',a:'flint and steel'},
+{q:'Which food restores hunger quickly?',a:'steak'},
+{q:'Which mob drops feathers?',a:'chicken'},
+];
+let triviaCurrent=0;
+function startTrivia(){triviaCurrent=0;document.getElementById('triviaQuestion').textContent=triviaQs[triviaCurrent].q;document.getElementById('triviaAnswer').value='';}
+let triviaWins=0,triviaLoss=0;
+function submitTrivia(){let ans=document.getElementById('triviaAnswer').value.toLowerCase().trim();if(ans===triviaQs[triviaCurrent].a.toLowerCase()){triviaWins++;document.getElementById('triviaResult').textContent='Correct!';}else{triviaLoss++;document.getElementById('triviaResult').textContent='Wrong!';}triviaCurrent++;if(triviaCurrent<triviaQs.length){document.getElementById('triviaQuestion').textContent=triviaQs[triviaCurrent].q;document.getElementById('triviaAnswer').value='';}else{document.getElementById('triviaQuestion').textContent='End of Trivia!';}document.getElementById('triviaWins').textContent=triviaWins;document.getElementById('triviaLoss').textContent=triviaLoss;}
+
+// Konami Code
+const konami=[38,38,40,40,37,39,37,39,66,65];let konamiIndex=0;
+document.addEventListener('keydown',e=>{if(e.keyCode===konami[konamiIndex]){konamiIndex++;if(konamiIndex===konami.length)window.location='https://www.youtube.com/watch?v=dQw4w9WgXcQ';}else konamiIndex=0;});
+
+// Jenbi Easter Egg
+let jenbiClicks = 0;
+const jenbiElement = document.getElementById('friend-jenbi');
+const secretContainer = document.getElementById('secretImageContainer');
+
+jenbiElement.addEventListener('click', () => {
+    jenbiClicks++;
+    if (jenbiClicks === 10) {
+        secretContainer.style.display = 'block';
+        alert('🎉 Secret unlocked!');
+    }
+});
+</script>
+</body>
+</html>
